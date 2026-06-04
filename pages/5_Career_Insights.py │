@@ -1,0 +1,71 @@
+import streamlit as st
+import pandas as pd
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.preprocessing import LabelEncoder
+from utils.loader import load_data
+
+df = load_data()
+
+st.title("🚀 Career Confidence Prediction")
+
+enc = LabelEncoder()
+
+df["AI_Ethics_Concern"] = enc.fit_transform(
+    df["AI_Ethics_Concern"]
+)
+
+X = df[
+[
+"Task_Frequency_Daily",
+"Time_Saved_Hours_Weekly",
+"GPA_Improvement",
+"AI_Ethics_Concern"
+]
+]
+
+y = df["Career_Confidence_Score"]
+
+model = RandomForestRegressor()
+
+model.fit(X,y)
+
+st.success(
+"Model trained successfully"
+)
+
+freq = st.slider(
+"Daily AI Usage",
+1,
+10,
+5
+)
+
+time_saved = st.slider(
+"Hours Saved Weekly",
+1,
+20,
+8
+)
+
+gpa = st.slider(
+"GPA Improvement",
+0.0,
+1.0,
+0.2
+)
+
+ethics = st.selectbox(
+"Ethics Concern",
+["Low","Medium","High"]
+)
+
+ethics_val = enc.transform([ethics])[0]
+
+pred = model.predict(
+[[freq,time_saved,gpa,ethics_val]]
+)[0]
+
+st.metric(
+"Predicted Career Confidence",
+round(pred,2)
+)
